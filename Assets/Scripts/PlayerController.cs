@@ -1,11 +1,12 @@
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 6f;
-    public float jumpForce = 8f;
-    public float gravity = 20f;
+    [SerializeField] private float moveSpeed = 6f;
+    [SerializeField] private float jumpForce = 8f;
+    [SerializeField] private float gravity = 20f;
 
     private CharacterController controller;
     private Vector3 velocity;
@@ -23,14 +24,29 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        Vector2 input = Vector2.zero;
+
+        if (MobileInputController.Instance != null)
+        {
+            input = MobileInputController.Instance.GetMovement();
+        }
+        else
+        {
+            input = new Vector2(
+                Input.GetAxis("Horizontal"),
+                Input.GetAxis("Vertical")
+            );
+        }
 
         Vector3 direction =
-            transform.right * horizontal +
-            transform.forward * vertical;
+            transform.right * input.x +
+            transform.forward * input.y;
 
-        controller.Move(direction * moveSpeed * Time.deltaTime);
+        direction = Vector3.ClampMagnitude(direction, 1f);
+
+        controller.Move(
+            direction * moveSpeed * Time.deltaTime
+        );
 
         if (controller.isGrounded)
         {
@@ -41,12 +57,26 @@ public class PlayerController : MonoBehaviour
             velocity.y -= gravity * Time.deltaTime;
         }
 
-        controller.Move(velocity * Time.deltaTime);
+        controller.Move(
+            velocity * Time.deltaTime
+        );
     }
 
     private void Jump()
     {
-        if (controller.isGrounded && Input.GetButtonDown("Jump"))
+        bool jump = false;
+
+        if (MobileInputController.Instance != null)
+        {
+            jump = MobileInputController.Instance.ConsumeJump();
+        }
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            jump = true;
+        }
+
+        if (controller.isGrounded && jump)
         {
             velocity.y = jumpForce;
         }
