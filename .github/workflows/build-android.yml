@@ -1,0 +1,32 @@
+name: CLASHDASH Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build CLASHDASH APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Build Android APK
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: Android
+          androidExportType: androidPackage
+          buildMethod: Zetra.ClashDash.ClashDashAndroidBuild.BuildAndroid
+
+      - name: Upload CLASHDASH APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CLASHDASH-APK
+          path: build/CLASHDASH.apk
