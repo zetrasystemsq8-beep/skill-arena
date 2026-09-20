@@ -3,8 +3,8 @@
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Zetra.ClashDash
 {
@@ -13,57 +13,41 @@ namespace Zetra.ClashDash
         public static void BuildAndroid()
         {
             string buildFolder = "build";
-            string apkPath =
-                Path.Combine(
-                    buildFolder,
-                    "CLASHDASH.apk"
-                );
+            string apkPath = Path.Combine(buildFolder, "CLASHDASH.apk");
 
             if (!Directory.Exists(buildFolder))
                 Directory.CreateDirectory(buildFolder);
 
-            string[] scenes =
+            List<string> scenePaths = new List<string>();
+            foreach (var scene in EditorBuildSettings.scenes)
             {
-                SceneManager.GetActiveScene().path
-            };
+                if (scene.enabled)
+                    scenePaths.Add(scene.path);
+            }
 
-            if (string.IsNullOrEmpty(scenes[0]))
+            if (scenePaths.Count == 0)
             {
-                Debug.LogError(
-                    "CLASHDASH: No active scene found."
-                );
-
+                Debug.LogError("CLASHDASH: No scenes found in Build Settings.");
                 return;
             }
 
-            BuildPlayerOptions options =
-                new BuildPlayerOptions
-                {
-                    scenes = scenes,
-                    locationPathName = apkPath,
-                    target =
-                        BuildTarget.Android,
-                    options =
-                        BuildOptions.None
-                };
-
-            BuildReport report =
-                BuildPipeline.BuildPlayer(options);
-
-            if (report.summary.result ==
-                BuildResult.Succeeded)
+            BuildPlayerOptions options = new BuildPlayerOptions
             {
-                Debug.Log(
-                    "CLASHDASH APK BUILD SUCCESS: " +
-                    apkPath
-                );
+                scenes = scenePaths.ToArray(),
+                locationPathName = apkPath,
+                target = BuildTarget.Android,
+                options = BuildOptions.None
+            };
+
+            BuildReport report = BuildPipeline.BuildPlayer(options);
+
+            if (report.summary.result == BuildResult.Succeeded)
+            {
+                Debug.Log("CLASHDASH APK BUILD SUCCESS: " + apkPath);
             }
             else
             {
-                Debug.LogError(
-                    "CLASHDASH APK BUILD FAILED: " +
-                    report.summary.result
-                );
+                Debug.LogError("CLASHDASH APK BUILD FAILED: " + report.summary.result);
             }
         }
     }
