@@ -50,6 +50,12 @@ namespace Zetra.ClashDash
                 Debug.LogError("CLASHDASH APK BUILD FAILED: " + report.summary.result);
             }
         }
+
+        public static void ConfigurePlayerSettings()
+        {
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel24;
+        }
     }
 }
 
