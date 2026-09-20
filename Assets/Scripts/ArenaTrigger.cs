@@ -1,38 +1,18 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-public class LevelManager : MonoBehaviour
+public class ArenaTrigger : MonoBehaviour
 {
-    [SerializeField] private string[] arenaScenes =
-    {
-        "Arena_01",
-        "Arena_02",
-        "Arena_03",
-        "Arena_04",
-        "Arena_05"
-    };
+    [SerializeField] private int arenaLevel = 1;
+    [SerializeField] private LevelManager levelManager;
 
-    public void LoadLevel(int level)
+    private void OnTriggerEnter(Collider other)
     {
-        int index = level - 1;
-
-        if (index < 0 || index >= arenaScenes.Length)
+        if (!other.CompareTag("Player"))
             return;
 
-        SceneManager.LoadScene(arenaScenes[index]);
-    }
-
-    public void LoadNextLevel()
-    {
-        if (ProgressionManager.Instance == null)
+        if (levelManager == null)
             return;
 
-        int nextLevel = ProgressionManager.Instance.GetLevel() + 1;
-
-        if (nextLevel <= arenaScenes.Length)
-        {
-            ProgressionManager.Instance.UnlockNextLevel();
-            LoadLevel(nextLevel);
-        }
+        levelManager.LoadLevel(arenaLevel);
     }
 }
