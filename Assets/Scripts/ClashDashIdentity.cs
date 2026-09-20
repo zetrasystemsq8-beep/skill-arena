@@ -72,4 +72,3 @@ public class ClashDashIdentity : MonoBehaviour
         return worldReferences;
     }
 }
-```1
