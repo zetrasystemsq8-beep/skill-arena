@@ -1,0 +1,22 @@
+name: Request Unity License
+
+on:
+  workflow_dispatch:
+
+jobs:
+  request:
+    name: Generate license request file
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Request activation file
+        uses: game-ci/unity-request-activation-file@v2
+        id: getActivationFile
+
+      - name: Upload activation file
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-activation-file
+          path: ${{ steps.getActivationFile.outputs.filePath }}
